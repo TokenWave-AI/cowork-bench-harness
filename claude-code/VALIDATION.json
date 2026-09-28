@@ -1,11 +1,11 @@
 {
-  "validated_at": "2026-09-28T08:25:56.101251+00:00",
-  "scope": "offline source export acceptance; no model API or Docker calls",
+  "validated_at": "2026-09-28T16:38:53.955397+00:00",
+  "scope": "Offline Claude ToolSearch rejection compatibility and original condition tests; no model API or Docker calls.",
   "release": "cowork-bench-release-101-public-20260928-64-slim",
   "release_manifest_sha256": "158c62dc58febc530971b901bb9efebf2cb4254de736bf15449f9ebba52d4cc6",
   "suites": {
     "claude-code": {
-      "passed": 6,
+      "passed": 13,
       "failed": 0,
       "skipped": 0
     }
@@ -14,5 +14,21 @@
   "python_parse": "passed",
   "publication_scan": "passed",
   "live_api_docker_validation": false,
-  "next_step": "Configure local CLI binaries, release and credentials, then run doctor and condition-specific smoke."
+  "next_step": "Configure local CLI binaries, release and credentials, then run doctor and condition-specific smoke.",
+  "python_parse_scope": "Modified Claude runner and test files",
+  "compatibility_fix": {
+    "id": "claude-2.1.207-toolsearch-short-rejection-v1",
+    "original_condition_tests": 6,
+    "new_tool_rejection_tests": 7,
+    "recorded_cli_error_fixtures": 2,
+    "fixture_content": "SDK call/error fields and source hashes only; identifiers and timing normalized.",
+    "validated_conditions": [
+      "cowork",
+      "oracle"
+    ],
+    "accepted_short_error": "Exact ToolSearch no-such-tool error with matching original native envelope, session, call ID, is_error, top-level proof and 0..30 second window.",
+    "isolation": "ToolSearch and host tools remain disabled; exact registry and outbound tool checks retained.",
+    "first_isolation_failure_preserved": true,
+    "source_and_exported_package_tests_passed": true
+  }
 }

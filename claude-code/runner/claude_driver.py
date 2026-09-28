@@ -131,7 +131,7 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                 try:
                     unregistered.check_timeout(now)
                 except ToolIsolationError as error:
-                    isolation_failure = str(error)
+                    isolation_failure = isolation_failure or str(error)
                     reason = 'registry_error'; stop_native()
                 # Pipe EOF is not a deadline prerequisite. A child holding a
                 # descriptor cannot keep this driver alive after bounded cleanup.
@@ -161,7 +161,7 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                 if event.get('type') == 'system' and event.get('subtype') == 'init':
                     init = event
                     if event.get('session_id') != session or not registry_valid(init, cfg['model'], row, condition):
-                        isolation_failure = 'init_registry_or_session_mismatch'
+                        isolation_failure = isolation_failure or 'init_registry_or_session_mismatch'
                         reason = 'registry_error'; stop_native()
                     elif state_path is not None:
                         with transaction(state_path) as durable:
@@ -171,7 +171,7 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                     try:
                         unregistered.require_settled()
                     except ToolIsolationError as error:
-                        isolation_failure = str(error)
+                        isolation_failure = isolation_failure or str(error)
                         reason = 'registry_error'; stop_native()
                 message = event.get('message') or {}
                 parts = message.get('content') if isinstance(message, dict) else []
@@ -186,13 +186,13 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                                 raise ToolIsolationError('tool_call_without_bound_registry')
                             unregistered.tool_call(part, now)
                         except ToolIsolationError as error:
-                            isolation_failure = str(error)
+                            isolation_failure = isolation_failure or str(error)
                             reason = 'registry_error'; stop_native()
                     if event.get('type') == 'user' and part.get('type') == 'tool_result':
                         try:
                             unregistered.tool_result(event, part, now)
                         except ToolIsolationError as error:
-                            isolation_failure = str(error)
+                            isolation_failure = isolation_failure or str(error)
                             reason = 'registry_error'; stop_native()
                         pending.discard(part.get('tool_use_id'))
         finally:
@@ -205,7 +205,7 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
     try:
         unregistered.require_settled()
     except ToolIsolationError as error:
-        isolation_failure = str(error)
+        isolation_failure = isolation_failure or str(error)
         if reason == 'process_exit':
             reason = 'registry_error'
     passed = reason == 'process_exit' and success(result, init, process.returncode, cfg['model'], session, row, condition)

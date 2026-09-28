@@ -1,0 +1,59 @@
+{
+  "cli_version": "2.1.207",
+  "cli_binary_sha256": "85e7e988a392d859f90802ca21fb26e89d3c9ab527f5ed0b08df3955e34d5c83",
+  "normalization": "Only SDK call/error fields retained; identifiers normalized and timestamps replaced by elapsed duration. Error strings unchanged.",
+  "rejections": [
+    {
+      "source_trajectory_sha256": "fa74e6f1ae091bfcc131f2a1b4017647d9d20d3879c1e7e073e6df0be868626a",
+      "session": "recorded-session-1",
+      "call": {
+        "type": "tool_use",
+        "id": "recorded-call-1",
+        "name": "ToolSearch"
+      },
+      "elapsed_seconds": 0.10514688491821289,
+      "result_event": {
+        "type": "user",
+        "session_id": "recorded-session-1",
+        "message": {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "recorded-call-1",
+              "is_error": true,
+              "content": "<tool_use_error>Error: No such tool available: ToolSearch</tool_use_error>"
+            }
+          ]
+        },
+        "tool_use_result": "Error: No such tool available: ToolSearch"
+      }
+    },
+    {
+      "source_trajectory_sha256": "774acdfa0e5e133f8e8bdf90923063773546cc15777e98c307acd7e28e40ffce",
+      "session": "recorded-session-2",
+      "call": {
+        "type": "tool_use",
+        "id": "recorded-call-2",
+        "name": "ToolSearch"
+      },
+      "elapsed_seconds": 0.12571096420288086,
+      "result_event": {
+        "type": "user",
+        "session_id": "recorded-session-2",
+        "message": {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "recorded-call-2",
+              "is_error": true,
+              "content": "<tool_use_error>Error: No such tool available: ToolSearch</tool_use_error>"
+            }
+          ]
+        },
+        "tool_use_result": "Error: No such tool available: ToolSearch"
+      }
+    }
+  ]
+}

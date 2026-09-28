@@ -49,15 +49,27 @@ class UnregisteredToolGuard:
         expected = ('<tool_use_error>Error: No such tool available: ' + name + '. '
                     + name + ' exists but is not enabled in this context. '
                     'Use one of the available tools instead.</tool_use_error>')
+        message = event.get('message')
+        message = message if isinstance(message, dict) else {}
+        # Claude 2.1.207 omits the disabled-tool suffix for ToolSearch.
+        # Accept only its exact native error envelope, never tool text.
+        short_error = 'Error: No such tool available: ToolSearch'
+        short_rejection = (name == 'ToolSearch'
+            and part.get('type') == 'tool_result'
+            and part.get('content') == '<tool_use_error>' + short_error + '</tool_use_error>'
+            and message.get('content') == [part]
+            and event.get('tool_use_result') == short_error)
         if (event.get('type') != 'user' or event.get('session_id') != self.session
-                or (event.get('message') or {}).get('role') != 'user'
-                or part.get('is_error') is not True or part.get('content') != expected):
+                or message.get('role') != 'user'
+                or part.get('is_error') is not True
+                or not (part.get('content') == expected or short_rejection)):
             raise ToolIsolationError('unregistered_tool_not_explicitly_unavailable')
-        if now - call['at'] > self.rejection_timeout_seconds:
+        if not 0 <= now - call['at'] <= self.rejection_timeout_seconds:
             raise ToolIsolationError('unregistered_tool_rejection_timeout')
         self.rejected.append({'tool_use_id': identifier, 'name': name,
                               'called_at': call['at'], 'rejected_at': now,
-                              'proof': 'pinned-cli-unavailable-tool-error',
+                              'proof': ('pinned-cli-toolsearch-no-such-tool-error' if short_rejection
+                                        else 'pinned-cli-unavailable-tool-error'),
                               'registry_contained_tool': False})
         del self.pending[identifier]
 
