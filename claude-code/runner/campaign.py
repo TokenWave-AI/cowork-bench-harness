@@ -19,6 +19,7 @@ import time
 import uuid
 from preflight_binding import eligible_entries, expected_tool_names, fingerprint, outbound_report, outbound_passed, valid_receipt
 from smoke_freshness import smoke_lock, reserve_smoke, freshness_report, publish_receipt, load_receipt
+from mcp_startup_policy import retryable_startup_result
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = json.loads((ROOT / 'CONFIG.json').read_text())
@@ -399,6 +400,7 @@ def run_job(row, condition):
             error_text = clean(json.dumps(final) + (job_root / 'attempts' / f'{number:03d}' / 'stderr.log').read_text()[-6000:])
             # Transport/provider failures resume the same conversation and workspace.
             retryable = bool(re.search(r'429|50[0234]|52[024]|rate.?limit|overload|timeout|timed out|connection|ECONN|ETIMED|network|fetch failed|stream|capacity|temporar|API Error', error_text, re.I))
+            retryable = retryable or retryable_startup_result(final)
             from provider_result_policy import classify_native
             rejection = classify_native(final.get('error'))
             if rejection:

@@ -1,11 +1,11 @@
 {
-  "validated_at": "2026-09-28T16:38:53.955397+00:00",
-  "scope": "Offline Claude ToolSearch rejection compatibility and original condition tests; no model API or Docker calls.",
+  "validated_at": "2026-09-28T17:28:05.241944+00:00",
+  "scope": "Offline Claude pending-MCP startup recovery, ToolSearch rejection compatibility, and condition tests; no model API, native CLI, or Docker calls.",
   "release": "cowork-bench-release-101-public-20260928-64-slim",
   "release_manifest_sha256": "158c62dc58febc530971b901bb9efebf2cb4254de736bf15449f9ebba52d4cc6",
   "suites": {
     "claude-code": {
-      "passed": 13,
+      "passed": 22,
       "failed": 0,
       "skipped": 0
     }
@@ -15,7 +15,7 @@
   "publication_scan": "passed",
   "live_api_docker_validation": false,
   "next_step": "Configure local CLI binaries, release and credentials, then run doctor and condition-specific smoke.",
-  "python_parse_scope": "Modified Claude runner and test files",
+  "python_parse_scope": "All Python files in the package",
   "compatibility_fix": {
     "id": "claude-2.1.207-toolsearch-short-rejection-v1",
     "original_condition_tests": 6,
@@ -30,5 +30,19 @@
     "isolation": "ToolSearch and host tools remain disabled; exact registry and outbound tool checks retained.",
     "first_isolation_failure_preserved": true,
     "source_and_exported_package_tests_passed": true
+  },
+  "mcp_startup_fix": {
+    "id": "bound-empty-mcp-startup-retry-v1",
+    "new_regression_tests": 9,
+    "validated_conditions": [
+      "cowork",
+      "oracle"
+    ],
+    "accepted_state": "First native init with exact session/model/workspace, empty tools, and one pending cowork MCP server; no tool activity, result, or prior isolation failure.",
+    "behavior": "Fail and stop the current native attempt, then retry through the existing transport budget using the same native session, workspace, and original deadline.",
+    "isolation": "Pending registry never passes validation; wrong identities, extra servers, early tools, native results, and repeated init remain terminal isolation failures.",
+    "session_reuse": "A matching native init marks the existing session resumable, including first-start MCP delays.",
+    "source_and_exported_package_tests_passed": true,
+    "live_api_or_docker_called": false
   }
 }

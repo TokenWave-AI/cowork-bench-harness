@@ -11,6 +11,7 @@ import threading
 import time
 
 from claude_events import model_metrics, registry_valid, success
+from mcp_startup_policy import pending_init, startup_error
 from claude_goal import begin_turn, finish_turn, initialize, save, transaction
 from claude_process_group import capture, cleanup
 from claude_tool_guard import ToolIsolationError, UnregisteredToolGuard
@@ -115,6 +116,7 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
     init, result, reason, closed, seen_tools, pending = None, None, 'process_exit', set(), set(), set()
     unregistered = UnregisteredToolGuard(expected_tool_names(condition, row), session)
     isolation_failure = None
+    saw_tool_activity = False
     last_event = time.time()
     with trajectory.open('a') as out, stderr_path.open('a') as err:
         try:
@@ -159,7 +161,23 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                 out.write(clean(json.dumps(event, ensure_ascii=False)) + '\n'); out.flush()
                 last_event = now
                 if event.get('type') == 'system' and event.get('subtype') == 'init':
+                    if init is not None and reason == 'mcp_startup_pending':
+                        isolation_failure = isolation_failure or 'mcp_pending_with_repeated_init'
+                        reason = 'registry_error'; stop_native()
+                    startup_pending = (init is None and not saw_tool_activity and result is None
+                        and isolation_failure is None and reason == 'process_exit'
+                        and pending_init(event, session=session, model=cfg['model'], workspace=workdir))
                     init = event
+                    if startup_pending:
+                        # A native init created this session even though MCP is not ready.
+                        # Retrying must resume it, never reuse --session-id as a new session.
+                        if state_path is not None:
+                            with transaction(state_path) as durable:
+                                if durable.get('threadId') != session or durable.get('workspace') != str(workdir):
+                                    raise ToolIsolationError('pending_init_goal_identity_mismatch')
+                                durable['native_session_started'] = True
+                        reason = 'mcp_startup_pending'; stop_native()
+                        continue
                     if event.get('session_id') != session or not registry_valid(init, cfg['model'], row, condition):
                         isolation_failure = isolation_failure or 'init_registry_or_session_mismatch'
                         reason = 'registry_error'; stop_native()
@@ -167,6 +185,9 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                         with transaction(state_path) as durable:
                             durable['native_session_started'] = True
                 if event.get('type') == 'result':
+                    if reason == 'mcp_startup_pending':
+                        isolation_failure = isolation_failure or 'mcp_pending_with_native_result'
+                        reason = 'registry_error'; stop_native()
                     result = event
                     try:
                         unregistered.require_settled()
@@ -178,6 +199,11 @@ def run_native(argv, prompt, workdir, trajectory, stderr_path, deadline, session
                 for part in parts if isinstance(parts, list) else []:
                     if not isinstance(part, dict):
                         continue
+                    if part.get('type') in ('tool_use', 'tool_result'):
+                        saw_tool_activity = True
+                        if reason == 'mcp_startup_pending':
+                            isolation_failure = isolation_failure or 'mcp_pending_with_tool_activity'
+                            reason = 'registry_error'; stop_native()
                     if event.get('type') == 'assistant' and part.get('type') == 'tool_use':
                         pending.add(part.get('id')); seen_tools.add(part.get('name'))
                         try:
@@ -267,6 +293,8 @@ def drive(cfg, *, job, state, session, workspace, row, condition, deadline, orig
             error = last.get('native_result') or {'error': 'API Error: stream ended before valid result'}
             if reason in ('registry_error', 'protocol_error'):
                 error = {'error': 'Invalid Claude protocol or isolated tool registry'}
+            elif reason == 'mcp_startup_pending':
+                error = startup_error()
             elif reason == 'transport_stall':
                 error = {'error': 'API Error: connection timed out without output or pending tool'}
             return {'is_error': True, 'terminal_reason': reason, 'error': error, 'goal': goal,

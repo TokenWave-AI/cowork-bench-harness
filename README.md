@@ -40,7 +40,7 @@ Claude Code 在 `claude-code/` 下使用相同入口，另需配置现有普通�
 
 ## 验证
 
-当前独立封装共通过 27 项离线测试：Codex 14 项、Claude Code 13 项（本次更新重跑 Claude，保留未改动 Codex 的既有结果），详见 [VALIDATION.json](VALIDATION.json)。覆盖 Goal 协议、逐题 runtime、路径迁移、条件绑定和工具隔离。这些测试未调用模型 API 或 Docker；接收方需对自己的实际配置完成 `doctor` 和 `smoke` 后再正式评测。
+当前独立封装共通过 36 项离线测试：Codex 14 项、Claude Code 22 项（本次更新重跑 Claude，保留未改动 Codex 的既有结果），详见 [VALIDATION.json](VALIDATION.json)。覆盖 Goal 协议、逐题 runtime、路径迁移、条件绑定和工具隔离。这些测试未调用模型 API 或 Docker；接收方需对自己的实际配置完成 `doctor` 和 `smoke` 后再正式评测。
 
 两个目录各有 `tests/README.md`。文件完整性可通过仓库根目录的 `sha256sum -c FILES.sha256` 检查。
 
