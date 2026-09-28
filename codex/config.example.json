@@ -1,0 +1,38 @@
+{
+  "harness": "codex",
+  "release_root": "/data2/cowork-release",
+  "model": "gpt-6-sol",
+  "effort": "max",
+  "provider": {
+    "base_url": "https://provider.example/v1",
+    "api_key_env": "COWORK_SOLVER_API_KEY"
+  },
+  "colleague": {
+    "inherit": true,
+    "base_url": "https://provider.example/v1",
+    "max_output_tokens": 32768
+  },
+  "conditions": [
+    "cowork"
+  ],
+  "rows": "all",
+  "concurrency": 10,
+  "budget_seconds": 28800,
+  "max_transport_retries": 20,
+  "prepare_concurrency": 2,
+  "grading_concurrency": 2,
+  "docker_host": "unix:///var/run/docker.sock",
+  "preflight_rows": {
+    "cowork": 44
+  },
+  "binaries": {
+    "codex": {
+      "path": "/opt/cowork-tools/codex",
+      "sha256": "0b2e9301d6100dddda3b9d5c80ebaeaa3a2f1962388f2f36f6b96a9f08b1f33f"
+    },
+    "code_mode_host": {
+      "path": "/opt/cowork-tools/codex-code-mode-host",
+      "sha256": "45ba654b0e145406f3316be4729b886980ce811aa2e3b6ed4e033dd41ab524f1"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "validated_at": "2026-09-28T08:25:56.101251+00:00",
+  "scope": "offline source export acceptance; no model API or Docker calls",
+  "release": "cowork-bench-release-101-public-20260928-64-slim",
+  "release_manifest_sha256": "158c62dc58febc530971b901bb9efebf2cb4254de736bf15449f9ebba52d4cc6",
+  "suites": {
+    "codex": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "exported_source_tests": true,
+  "python_parse": "passed",
+  "publication_scan": "passed",
+  "live_api_docker_validation": false,
+  "next_step": "Configure local CLI binaries, release and credentials, then run doctor and condition-specific smoke."
+}

@@ -1,0 +1,35 @@
+{
+  "harness": "claude-code",
+  "release_root": "/data2/cowork-release",
+  "model": "claude-opus-5-5",
+  "effort": "max",
+  "provider": {
+    "base_url": "https://provider.example",
+    "api_key_env": "COWORK_SOLVER_API_KEY"
+  },
+  "colleague": {
+    "inherit": true,
+    "base_url": "https://provider.example/v1",
+    "max_output_tokens": 32768
+  },
+  "conditions": [
+    "cowork"
+  ],
+  "rows": "all",
+  "concurrency": 10,
+  "budget_seconds": 28800,
+  "max_transport_retries": 20,
+  "prepare_concurrency": 2,
+  "grading_concurrency": 2,
+  "docker_host": "unix:///var/run/docker.sock",
+  "preflight_rows": {
+    "cowork": 44
+  },
+  "binaries": {
+    "claude": {
+      "path": "/opt/cowork-tools/claude",
+      "sha256": "85e7e988a392d859f90802ca21fb26e89d3c9ab527f5ed0b08df3955e34d5c83"
+    }
+  },
+  "native_solver_user": "cowork-solver"
+}

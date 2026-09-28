@@ -1,0 +1,6 @@
+{
+  "harness": "claude-code",
+  "cli_version": "2.1.207",
+  "scaffold": "claude-code-stream-json-goal-proxy",
+  "runtime_policy_revision": "public-101-native-row-runtime-v1+private-sidecar-budget-v1"
+}

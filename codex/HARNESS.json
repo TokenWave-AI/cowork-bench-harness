@@ -1,0 +1,6 @@
+{
+  "harness": "codex",
+  "cli_version": "0.156.1",
+  "scaffold": "codex-app-server-goal",
+  "runtime_policy_revision": "public-101-native-row-runtime-v1+private-sidecar-budget-v1"
+}
